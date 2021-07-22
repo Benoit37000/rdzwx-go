@@ -9,7 +9,7 @@ matrix:
         - ELECTRON_BUILD_BACHE=$HOME/.cache/electron-builder
       deploy:
         provider: releases
-        api_key: ${GITHUB_API_KEY}
+        api_key: ${travis}
         file: rdzSonde-v${TRAVIS_TAG}.dmg
         skip_cleanup: true
         overwrite: true
@@ -24,26 +24,26 @@ matrix:
         - ELECTRON_BUILD_BACHE=$HOME/.cache/electron-builder
       deploy:
         provider: releases
-        api_key: ${GITHUB_API_KEY}
+        api_key: ${travis}
         file: rdzSonde-setup-bde.exe
         skip_cleanup: true
         overwrite: true
         on:
           tags: true
 
-#    - os: linux
-#      language: minimal
-#      dist: focal
-#      group: edge
-#       deploy:
-#         provider: releases
-#         api_key: ${GITHUB_API_KEY}
-#         file: rdzSonde-bde.apk
-#         skip_cleanup: true
-#         overwrite: true
-#         on:
-#           tags: true
-#
+    - os: linux
+      language: minimal
+      dist: focal
+      group: edge
+       deploy:
+         provider: releases
+         api_key: ${travis}
+         file: rdzSonde-bde.apk
+         skip_cleanup: true
+         overwrite: true
+         on:
+           tags: true
+
 
 env:
   global:
@@ -63,14 +63,6 @@ before_script:
  # - android-wait-for-emulator
  # - adb shell input keyevent 82 &
  # - curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then
-      npm install -g cordova;
-      cordova platform add electron;
-    fi
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-      sudo npm install -g cordova;
-      cordova platform add electron;
-    fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     echo ${TEST};
     sudo apt-get update;
