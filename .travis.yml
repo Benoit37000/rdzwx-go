@@ -1,20 +1,49 @@
 matrix:
   include:
-    
+    - os: osx
+      osx_image: xcode11.3
+      language: node_js
+      node_js: "12"
+      env:
+        - ELECTRON_CACHE=$HOME/.cache/electron
+        - ELECTRON_BUILD_BACHE=$HOME/.cache/electron-builder
+      deploy:
+        provider: releases
+        api_key: ${GITHUB_API_KEY}
+        file: rdzSonde-v${TRAVIS_TAG}.dmg
+        skip_cleanup: true
+        overwrite: true
+        on:
+          tags: true
 
-    - os: linux
-      language: minimal
-      dist: focal
-      group: edge
-       deploy:
-         provider: releases
-         api_key: ${GITHUB_API_KEY}
-         file: rdzSonde-bde.apk
-         skip_cleanup: true
-         overwrite: true
-         on:
-           tags: true
+    - os: windows
+      language: node_js
+      node_js: "12"
+      env:
+        - ELECTRON_CACHE=$HOME/.cache/electron
+        - ELECTRON_BUILD_BACHE=$HOME/.cache/electron-builder
+      deploy:
+        provider: releases
+        api_key: ${GITHUB_API_KEY}
+        file: rdzSonde-setup-bde.exe
+        skip_cleanup: true
+        overwrite: true
+        on:
+          tags: true
 
+#    - os: linux
+#      language: minimal
+#      dist: focal
+#      group: edge
+#       deploy:
+#         provider: releases
+#         api_key: ${GITHUB_API_KEY}
+#         file: rdzSonde-bde.apk
+#         skip_cleanup: true
+#         overwrite: true
+#         on:
+#           tags: true
+#
 
 env:
   global:
@@ -34,7 +63,15 @@ before_script:
  # - android-wait-for-emulator
  # - adb shell input keyevent 82 &
  # - curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then
+      npm install -g cordova;
+      cordova platform add electron;
+    fi
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      sudo npm install -g cordova;
+      cordova platform add electron;
+    fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     echo ${TEST};
     sudo apt-get update;
     sudo apt-get install nodejs;
@@ -59,12 +96,23 @@ before_script:
     fi
 
 script:
-
+  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then
+      echo "Windows";
+      cordova build electron --debug;
+      find platforms;
+      mv platforms/electron/build/*.exe rdzSonde-setup-${TRAVIS_TAG}.exe;
+      ls *.exe;
+    fi
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+      echo "OSX";
+      cordova build electron --release;
+      mv platforms/electron/build/rdzSonde*.dmg rdzSonde-v${TRAVIS_TAG}.dmg;
+    fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then
     cordova build --release;
     export BUILD_TOOLS=$HOME/sdk/build-tools/29.0.3;
-    ${BUILD_TOOLS}/zipalign -v -p 4 platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk rdzSonde-bde.apk;
+    ${BUILD_TOOLS}/zipalign -v -p 4 platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk rdzSonde-unsigned.apk;
     #echo ${SUPERSECRET} | gpg --batch --yes --passphrase-fd 0 -d my-release-key.jks.gpg > my-release-key.jks;
     #echo ${JKSPASS} | ${BUILD_TOOLS}/apksigner sign --ks my-release-key.jks --out rdzSonde-${TRAVIS_TAG}.apk rdzSonde-unsigned.apk;
-    git remote add origin-pages https://${travis}@github.com/Benoit37000/rdzwx-go.git; 
     fi
+
