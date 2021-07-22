@@ -66,5 +66,5 @@ script:
     ${BUILD_TOOLS}/zipalign -v -p 4 platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk rdzSonde-bde.apk;
     #echo ${SUPERSECRET} | gpg --batch --yes --passphrase-fd 0 -d my-release-key.jks.gpg > my-release-key.jks;
     #echo ${JKSPASS} | ${BUILD_TOOLS}/apksigner sign --ks my-release-key.jks --out rdzSonde-${TRAVIS_TAG}.apk rdzSonde-unsigned.apk;
-    git remote add origin-pages https://${travis}@github.com/Benoit37000/rdzwx-go.git 
+    git remote add origin-pages https://${travis}@github.com/Benoit37000/rdzwx-go.git; 
     fi
